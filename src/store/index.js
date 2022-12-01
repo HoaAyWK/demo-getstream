@@ -8,6 +8,7 @@ import commentReducer from './entities/comment'
 import jobReducer from './entities/job'
 import pointHistoryReducer from './entities/pointHistory'
 import creditReducer from './entities/credit'
+import appliesReducer from './entities/apply'
 
 export const store = configureStore({
     reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
         category: categoryReducer,
         user: userReducer,
         task: taskReducer,
+        apply: appliesReducer,
         /* user: userReducer,
         transaction: transactionReducer,
         task: taskReducer,

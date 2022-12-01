@@ -1,27 +1,49 @@
 import React from 'react'
 import Button from "react-bootstrap/Button";
+import { useChatContext } from 'stream-chat-react';
+import { useNavigate } from 'react-router-dom';
+
 import UserDetail from './UserDetail';
 import { getOffersByJobAction } from '../../store/entities/job';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { handleDate } from '../../common/lib';
+import { getAppliesByJob } from '../../store/entities/apply';
 const FreelancerApply = ({ job }) => {
+    const dispatch = useDispatch();
+    const { client, setActiveChannel } = useChatContext();
+    const navigate = useNavigate();
 
-    const dispatch = useDispatch()
+    // const { offers, count } = useSelector(state => state.job.getOffersByJob)
 
-    const { offers, count } = useSelector(state => state.job.getOffersByJob)
+    // useEffect(() => {
+    //     if (job) {
+    //         dispatch(getOffersByJobAction(job.id))
+    //     }
+    // }, [job])
+
+    const { applies } = useSelector(state => state.apply.getAppliesByJob);
+    console.log(applies);
 
     useEffect(() => {
-        if (job) {
-            dispatch(getOffersByJobAction(job.id))
-        }
-    }, [job])
+        dispatch(getAppliesByJob(job.id));
+    }, [dispatch, job.id]);
+
+    const handleContactClick = async (e) => {
+        const conversation = client.channel('messaging', {
+            members: [e.target.value, client.userID]
+        });
+
+        await conversation.watch();
+        setActiveChannel(conversation);
+        navigate('/chat');
+    }
 
     return (
         <div className='freelancerapply__content'>
             <div className=''>
                 <h4>
-                    Freelancer Applied (<span>{count}</span>)
+                    {/* Freelancer Applied (<span>{count}</span>) */}
                 </h4>
                 <div className='freelancerapply__content__postlist'>
                     <div className='freelancerapply__content__postlist__table'>
@@ -35,21 +57,21 @@ const FreelancerApply = ({ job }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {offers && offers.map((offer, index) => (
+                                {applies && applies.map((offer, index) => (
                                     <tr key={index}>
                                         <th scope='row'>
                                             <UserDetail freelancer={offer.freelancer}></UserDetail>
                                         </th>
-                                        <td>{handleDate(offer.createdAt)}</td>
-                                        <td>
+                                        <td>{handleDate(offer.appliedAt)}</td>
+                                        {/* <td>
                                             <div className="d-flex justify-content-center profileuser__information__detail__star-rating--start">
                                                 {offer.freelancer.rating.stars} 
                                                 <label htmlFor="start1" title="1 start">☆</label>
                                             </div>
-                                        </td>
+                                        </td> */}
                                         <td>
                                             <div>
-                                                <Button variant="primary" className="btn-contact-post">
+                                                <Button variant="primary" className="btn-contact-post" value={offer.freelancer.user.id} onClick={handleContactClick}>
                                                     Contact
                                                 </Button>
                                                 <Button variant="primary" className="btn-reject-post">

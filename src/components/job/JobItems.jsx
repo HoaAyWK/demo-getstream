@@ -3,9 +3,12 @@ import Avatar from '../../assets/img/avatar.png';
 import { handleDate } from '../../common/lib';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from 'react-bootstrap'
+import { useSelector } from 'react-redux';
 
-const JobItems = ({ job, category }) => {
+import socket from '../../socket/socket';
 
+const JobItems = ({ job }) => {
+    const { user } = useSelector(state => state.auth.currentUser);
     const navigate = useNavigate()
 
     const goJobItemPage = (id) => {
@@ -15,11 +18,20 @@ const JobItems = ({ job, category }) => {
         })
     }
 
+    const handeClickApply = () => {
+        const freelancerId = user?.id;
+        const username = user?.freelancer?.firstName + " " + user?.freelancer?.lastName;
+        const jobId = job?.id;
+        const jobName = job?.name;
+        const avatar = user?.image;
+        socket.emit('apply job', { freelancerId, username, avatar, jobId, jobName, to: job?.employer.user?.id });
+    };
+
 
     return (
         <div className='w-100'>
-            {(job && category) && (
-                <div onClick={() => goJobItemPage(job.id)} className='jobitems pulse'>
+            {(job) && (
+                <div className='jobitems pulse'>
                     <div className='row mb-3 mb-md-0 block-name'>
                         <div className='col-12 col-md-6'>
                             <div className='d-flex'>
@@ -49,7 +61,7 @@ const JobItems = ({ job, category }) => {
                     </div>
                     <div className='row mb-3 mb-md-0'>
                         <div className='col-12 col-md-6 mb-2 mb-0'>
-                            <a className='jobitems--category text-capitalize'>{category.name}</a>
+                            <a className='jobitems--category text-capitalize'></a>
                         </div>
                         <div className='col-12 col-md-6 mb-2 mb-0'>
                             <p className='jobitems--timeforjob'>
@@ -58,10 +70,13 @@ const JobItems = ({ job, category }) => {
                                     <span>{handleDate(job.startDate)}</span>
                                 </span>
                                 &nbsp;
-                                <span className='mx-2'>
+                                {/* <span className='mx-2'>
                                     End day: &nbsp;
                                     <span>{handleDate(job.endDate)}</span>
-                                </span>
+                                </span> */}
+                                <button type='button' onClick={handeClickApply}>
+                                    Apply
+                                </button>
                             </p>
                         </div>
                     </div>

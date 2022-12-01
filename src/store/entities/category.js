@@ -1,6 +1,8 @@
 import { createSlice, combineReducers, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios'
-import { apiUrl } from "../../common/consts";
+
+import api from '../../app/api';
+import { ACTION_STATUS, apiUrl } from "../../common/consts";
 
 
 // create category
@@ -163,7 +165,7 @@ export const getCategoriesIntroAction = createAsyncThunk(
     "categories intro",
     async (limit) => {
         try{
-            const {data} = await axios.get(`${apiUrl}/categories/intro/${limit}`)
+            const {data} = await axios.get(`${apiUrl}/categories`)
             return data
         }
         catch(error){
@@ -229,6 +231,43 @@ export const getAllCategoriesSlice = createSlice({
     }
 })
 
+const initialGetCategoryWithCountOpenJobsState = {
+    categories: [],
+    jobsPerCategory: null,
+    status: ACTION_STATUS.IDLE
+};
+
+export const getCategoriesWithCountOpenJobs = createAsyncThunk(
+    'categories/getWithCountOpenJobs',
+    async () => {
+        const { data } = await api.get('/categories/all');
+
+        return data;
+    }
+);
+
+const getCategoriesWithCountOpenJobsSlice = createSlice({
+    name: 'getCategoriesWithCountOpenJobs',
+    initialState: initialGetCategoryWithCountOpenJobsState,
+    reducers: {
+
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getCategoriesWithCountOpenJobs.pending, (state, action) => {
+                state.status = ACTION_STATUS.LOADING;
+            })
+            .addCase(getCategoriesWithCountOpenJobs.fulfilled, (state, action) => {
+                state.status = ACTION_STATUS.SUCCESSEED;
+                state.categories = action.payload.categories;
+                state.jobsPerCategory = action.payload.jobsPerCategory;
+            })
+            .addCase(getCategoriesWithCountOpenJobs, (state, action) => {
+                state.status = ACTION_STATUS.FAILED;
+            });
+    }
+})
+
 // reducers
 const categoryReducer = combineReducers({
     createCategory: createCategorySlice.reducer,
@@ -236,7 +275,8 @@ const categoryReducer = combineReducers({
     getCategoriesNoParents: getCategoriesNoParentsSlice.reducer,
     getCategoriesWithChildren: getCategoriesWithChildrenSlice.reducer,
     getCategoriesIntro: getCategoriesIntroSlice.reducer,
-    getAllCategories: getAllCategoriesSlice.reducer
+    getAllCategories: getAllCategoriesSlice.reducer,
+    getCategoriesWithCountOpenJobs: getCategoriesWithCountOpenJobsSlice.reducer,
 })
 
 export default categoryReducer

@@ -17,7 +17,7 @@ const UserDetail = ({freelancer}) => {
             <div className="userdetail">
                 <div className="userdetail__heading" variant="primary" onClick={handleShow}>
                     <img className="userdetail__heading--avatar" src={Avatar}></img>
-                    {freelancer && (freelancer.name)}
+                    {freelancer && (freelancer.firstName)}
                 </div>
 
                 <Modal

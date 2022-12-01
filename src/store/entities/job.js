@@ -1,7 +1,79 @@
 import { createSlice, combineReducers, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios'
-import { apiUrl } from "../../common/consts";
+import { ACTION_STATUS, apiUrl } from "../../common/consts";
+import api from '../../app/api';
 
+const initialGetJobsState = {
+    jobs: [],
+    status: ACTION_STATUS.IDLE
+};
+
+export const  getJobs = createAsyncThunk(
+    'jobs/getJobs',
+    async () => {
+        const { data } = await api.get('/job/show');
+        console.log(data);
+        return data;
+    }
+);
+
+const getJobsSlice = createSlice({
+    name: 'getJobs',
+    initialState: initialGetJobsState,
+    reducers: {
+
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getJobs.pending, (state, action) => {
+                state.action = ACTION_STATUS.LOADING;
+            })
+            .addCase(getJobs.fulfilled, (state, action) => {
+                state.action = ACTION_STATUS.SUCCESSEED;
+                state.jobs = action.payload.jobs;
+            })
+            .addCase(getJobs.rejected, (state, action) => {
+                state.action = ACTION_STATUS.FAILED;
+            });
+    }
+});
+
+const initialGetMyJobsState = {
+    jobs: [],
+    status: ACTION_STATUS.IDLE,
+    message: ''
+};
+
+
+export const getMyJobs = createAsyncThunk(
+    'jobs/myJobs',
+    async () => {
+        const { data } = await api.get('/job/my');
+
+        return data;
+    }
+);
+
+const myJobsSlice = createSlice({
+    name: 'myJobs',
+    initialState: initialGetJobsState,
+    reducers: {
+
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getMyJobs.pending, (state, action) => {
+                state.status = ACTION_STATUS.LOADING;
+            })
+            .addCase(getMyJobs.fulfilled, (state, action) => {
+                state.status = ACTION_STATUS.SUCCESSEED;
+                state.jobs = action.payload.jobs;
+            })
+            .addCase(getMyJobs.rejected, (state, action) => {
+                state.status = ACTION_STATUS.FAILED;
+            })
+    }
+});
 
 // query jobs
 const initStateQueryJobs = {
@@ -16,7 +88,7 @@ export const queryJobsAction = createAsyncThunk(
     "query jobs",
     async (dataQuery) => {
         /* const {data} = await axios.get(`${apiUrl}/jobs/search?name=${dataQuery.name}&status=${dataQuery.status}&sortBy=${dataQuery.sortBy}&limit=${dataQuery.limit}&page=${dataQuery.page}&exclude=${dataQuery.exclude}`) */
-        const {data} = await axios.get(`${apiUrl}/jobs/search?&status=${dataQuery.status}&limit=${dataQuery.limit}&page=${dataQuery.page}`)
+        const {data} = await axios.get(`${apiUrl}/search/search?&status=${dataQuery.status}&limit=${dataQuery.limit}&page=${dataQuery.page}`)
         console.log(data)
         return data
     }
@@ -640,8 +712,10 @@ const jobReducer = combineReducers({
     reportUser: reportUserSlice.reducer,
     getIntro: getIntroSlice.reducer,
     getNewestJobs: getNewestJobsSlice.reducer,
-    getMyJobsProcessing: getMyJobsProcessingSlice.reducer
-})
+    getMyJobsProcessing: getMyJobsProcessingSlice.reducer,
+    getJobs: getJobsSlice.reducer,
+    myJobs: myJobsSlice.reducer,
+});
 
 export default jobReducer
 

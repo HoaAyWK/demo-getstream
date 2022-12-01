@@ -1,21 +1,15 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getCategoriesIntroAction } from '../../store/entities/category'
+import { getCategoriesIntroAction, getCategoriesWithCountOpenJobs } from '../../store/entities/category'
 import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDesktop, faPenNib, faMicrochip,faKeyboard } from '@fortawesome/free-solid-svg-icons'
+import { ACTION_STATUS } from '../../common/consts'
 
 
-const Category = () => {
-    const dispatch = useDispatch()
-
-    const { categories } = useSelector(state => state.category.getCategoriesIntro)
-
-    useEffect(() => {
-        dispatch(getCategoriesIntroAction(4))
-    }, [])
-    const items =[{
-        icon:faDesktop,
+const items = [
+    {
+        icon: faDesktop,
         color:"#4743db",
         backgroundColor:"rgba(71,67,219,.1)"
     },
@@ -34,7 +28,22 @@ const Category = () => {
         color:"#f71e3f",
         backgroundColor:"rgba(247,30,63,.1)"
     }
-]
+];
+
+const Category = () => {
+    const dispatch = useDispatch()
+
+    const { categories, jobsPerCategory, status } =
+        useSelector(state => state.category.getCategoriesWithCountOpenJobs);
+
+
+    useEffect(() => {
+        if (status === ACTION_STATUS.IDLE) {
+            dispatch(getCategoriesWithCountOpenJobs());
+        }
+    }, [status]);
+
+    
 
     return (
         <div className='content'>
@@ -48,11 +57,13 @@ const Category = () => {
                         <li key={index} className='col-6 col-md-3 mb-3 category__list__items grow'>
                             <a href='#'>
                                 <div>
-                                    <div className='category__list__items--icon' style={{color: items[index].color,backgroundColor:items[index].backgroundColor}}>
+                                    <div className='category__list__items--icon' style={{color: items[index].color, backgroundColor:items[index].backgroundColor}}>
                                         <FontAwesomeIcon icon={items[index].icon} />
                                     </div>
-                                    <p className='category__list__items--header'>{item.category.name}</p>
-                                    <p className='category__list__items--decription'> <span className='category__list__items--sum-job'>{item.numJobs}</span> Vacancy </p>
+                                    <p className='category__list__items--header'>{item.name}</p>
+                                    <p className='category__list__items--decription'> <span className='category__list__items--sum-job'>
+                                        {jobsPerCategory?.[item.id] ? jobsPerCategory?.[item.id] : 0}
+                                        </span> Vacancy </p>
                                 </div>
                             </a>
                         </li>

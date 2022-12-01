@@ -21,6 +21,7 @@ import { checkEmailFormat, checkLengthPassword } from "../../common/validation";
 const Login = () => {
     const dispatch = useDispatch();
 
+    const token = JSON.parse(localStorage.getItem('token'));
     const { successLogin, messageLogin, isLoadingLogin } = useSelector(state => state.auth.login)
     const { numJobs, numCompanies } = useSelector(state => state.job.getIntro)
 
@@ -56,7 +57,8 @@ const Login = () => {
         document.getElementsByClassName("eyeopen")[0].classList.add("visible");
     }
 
-    const submitLogin = () => {
+    const submitLogin = (e) => {
+        e.preventDefault();
         if (!checkEmailFormat(loginData.email)) {
             swal({
                 title: "Error",

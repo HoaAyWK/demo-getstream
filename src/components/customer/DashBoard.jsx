@@ -10,6 +10,7 @@ import { getMyJobsAction, getMyJobsProcessingAction } from '../../store/entities
 import { handleDate } from '../../common/lib';
 import { convert2arr } from '../../common/lib';
 import { Pagination } from 'react-bootstrap';
+import { getMyJobs } from '../../store/entities/job';
 
 const DashBoard = () => {
     const dispatch = useDispatch()
@@ -18,8 +19,11 @@ const DashBoard = () => {
         pageShowOpen: 1
     })
 
-    const { resultsOpen, categoriesOpen, offersOpen, totalResultsOpen, totalPagesOpen } = useSelector(state => state.job.getMyJobs)
-    const { resultsProcessing, categoriesProcessing, totalResultsProcessing } = useSelector(state => state.job.getMyJobs)
+    // const { resultsOpen, categoriesOpen, offersOpen, totalResultsOpen, totalPagesOpen } = useSelector(state => state.job.getMyJobs)
+    // const { resultsProcessing, categoriesProcessing, totalResultsProcessing } = useSelector(state => state.job.getMyJobs)
+    const { jobs } = useSelector(state => state.job.myJobs);
+    console.log(jobs);
+
 
     const changePageOpen = (page) => {
         setInfo({
@@ -30,9 +34,10 @@ const DashBoard = () => {
     }
 
     useEffect(() => {
-        dispatch(getMyJobsAction({ limit: 3, page: 1 }))
-        dispatch(getMyJobsProcessingAction({ limit: 3, page: 1 }))
-    }, [])
+        // dispatch(getMyJobsAction({ limit: 3, page: 1 }))
+        // dispatch(getMyJobsProcessingAction({ limit: 3, page: 1 }))
+        dispatch(getMyJobs());
+    }, [dispatch])
 
     return (
         <div className='dashboard-manage'>
@@ -43,7 +48,7 @@ const DashBoard = () => {
                 <div className='dashboard-manage__content'>
                     <div className='m-3'>
                         <h2>
-                            Posted Jobs (<span>{totalResultsOpen}</span>)
+                            {/* Posted Jobs (<span>{totalResultsOpen}</span>) */}
                         </h2>
                         <div className='dashboard-manage__content__postlist'>
                             <div className='dashboard-manage__content__postlist__table'>
@@ -58,14 +63,14 @@ const DashBoard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {resultsOpen && resultsOpen.map((job, index) => (
+                                        {jobs && jobs?.map((job, index) => (
                                             <tr key={index}>
                                                 <th scope='row'>
                                                     <ItemsDetailControl job={job}></ItemsDetailControl>
                                                 </th>
-                                                <td>{categoriesOpen[index].name}</td>
+                                                {/* <td>{categoriesOpen[index].name}</td> */}
                                                 <td>{handleDate(job.createdAt)}</td>
-                                                <td>{offersOpen[index]}</td>
+                                                {/* <td>{offersOpen[index]}</td> */}
                                                 <td>
                                                     <div>
                                                         <Button variant="primary" className="btn-delete-post">
@@ -77,17 +82,17 @@ const DashBoard = () => {
                                         ))}
                                     </tbody>
                                 </table>
-                                {totalPagesOpen && (
+                                {/* {totalPagesOpen && (
                                     <Pagination className='mt-2'>
                                         {convert2arr(totalPagesOpen).map((item) => (
                                             <Pagination.Item onClick={() => changePageOpen(item + 1)} active={item + 1 === info.pageShowOpen} key={item}>{item + 1}</Pagination.Item>
                                         ))}
                                     </Pagination>
-                                )}
+                                )} */}
                             </div>
                         </div>
                     </div>
-                    <div className='mx-3 my-5 py-5'>
+                    {/* <div className='mx-3 my-5 py-5'>
                         <h2>
                             Posted Jobs Processing (<span>{totalResultsProcessing}</span>)
                         </h2>
@@ -125,7 +130,7 @@ const DashBoard = () => {
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
 

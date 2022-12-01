@@ -3,7 +3,7 @@ import { ReactComponent as Logo } from '../../assets/img/logo.svg';
 
 const Footer = () => {
     return (
-        <div className='footer'>
+        <div className='footer' id='footer'>
             <div className='container footer__content'>
                 <div className='d-flex'>
                     <div className='col-4 footer__content__contact'>

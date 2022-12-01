@@ -118,7 +118,7 @@ const ItemsDetailControl = ({ job }) => {
                                             <TaskList></TaskList>
                                             <FreelancerApply></FreelancerApply> */}
                                         {job && <DecriptionJob job={job}></DecriptionJob>}
-                                        {job && <TaskList job={job}></TaskList>}
+                                        {/* {job && <TaskList job={job}></TaskList>} */}
                                         {job && <FreelancerApply job={job}></FreelancerApply>}
                                         </div>
                                     </div>

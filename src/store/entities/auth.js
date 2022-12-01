@@ -1,5 +1,7 @@
 import {createAsyncThunk, createSlice, combineReducers} from '@reduxjs/toolkit'
-import { apiUrl } from '../../common/consts'
+
+import { ACTION_STATUS, apiUrl } from '../../common/consts';
+import api from '../../app/api';
 
 import axios from 'axios'
 // login -- done
@@ -12,17 +14,13 @@ const initStateLogin = {
 
 export const loginAction = createAsyncThunk(
     "login",
-    async ({email, password}) => {
+    async ({ email, password }) => {
         try{
-            const {data} = await axios.post(`${apiUrl}/login`, {email, password})
-            console.log(data)
-            if (data.success){
-                localStorage.setItem('job', data.token.token)
-            }
+            const { data } = await axios.post(`${apiUrl}/account/login`, { email, password });
+
             return data
         }
         catch(error){
-            
             return error.response.data
         }
     }
@@ -35,16 +33,17 @@ export const loginSlice = createSlice({
         builder.addCase(loginAction.pending, (state) => {
             state.isLoadingLogin = true
         })
-        builder.addCase(loginAction.fulfilled, (state, data) => {
+        builder.addCase(loginAction.fulfilled, (state, action) => {
             state.isLoadingLogin = false
-            state.successLogin = data.payload.success
-            state.messageLogin = data.payload.message
+            state.successLogin = action.payload.success
+            state.messageLogin = action.payload.message
+            localStorage.setItem('accessToken', JSON.stringify(action.payload.accessToken));
+            localStorage.setItem('streamToken', JSON.stringify(action.payload.streamToken));
         })
         builder.addCase(loginAction.rejected, (state) => {
             state.isLoadingLogin = false
             state.successLogin = false
             state.messageLogin = "Network Error"
-            
         })
     }
 })
@@ -164,13 +163,62 @@ export const forgotPasswordSlice = createSlice({
     }
 })
 
+const initialGetCurrentUserState = {
+    status: ACTION_STATUS.IDLE,
+    user: null,
+    errorMessage: ''
+};
+
+export const getCurrentUser = createAsyncThunk(
+    'auth/getCurrentUser',
+    async () => {
+        try {
+            const { data } = await api.get('/users/profile');
+            console.log(data);
+
+            return data;
+        }
+        catch (error) {
+            console.log(error);
+            const message = (error.response && error.response.data && error.response.data.message) 
+                || error.message || error.toString();
+
+            return message;
+        }
+    }
+);
+
+const getCurrentUserSlice = createSlice({
+    name: 'auth/getCurrentUser',
+    initialState: initialGetCurrentUserState,
+    reducers: {
+
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getCurrentUser.pending, (state, action) => {
+                state.status = ACTION_STATUS.LOADING;
+            })
+            .addCase(getCurrentUser.fulfilled, (state, action) => {
+                state.status = ACTION_STATUS.SUCCESSEED;
+                state.user = action.payload.user;
+                localStorage.setItem('user', JSON.stringify(action.payload.user));
+            })
+            .addCase(getCurrentUser.rejected, (state, action) => {
+                state.status = ACTION_STATUS.FAILED;
+                state.errorMessage = action.payload.error;
+            })
+    }
+})
+
 
 // reducer
 const authReducer = combineReducers({
     login: loginSlice.reducer,
     register: registerSlice.reducer,
     confirmEmail: confirmEmailSlice.reducer,
-    forgotPassword: forgotPasswordSlice.reducer
+    forgotPassword: forgotPasswordSlice.reducer,
+    currentUser: getCurrentUserSlice.reducer
 })
 
 

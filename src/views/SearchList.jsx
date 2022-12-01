@@ -4,7 +4,7 @@ import Footer from '../components/layer/Footer'
 import JobItems from '../components/job/JobItems'
 import Baner from '../components/common/Baner'
 import { useDispatch, useSelector } from 'react-redux'
-import { queryJobsAction } from '../store/entities/job'
+import { getJobs, queryJobsAction } from '../store/entities/job'
 import { useEffect, useState } from 'react'
 import {Pagination} from 'react-bootstrap'
 import { useSearchParams } from 'react-router-dom'
@@ -36,7 +36,11 @@ const SearchList = () => {
 
 
     const {results, categories, totalPages, totalResults, successQueryJobs} = useSelector(state => state.job.queryJobs)
+    const { jobs } = useSelector(state => state.job.getJobs);
 
+    useEffect(() => {
+        dispatch(getJobs());
+    }, [dispatch]);
     
     useEffect(() => {
         const key = searchParams.get('key')
@@ -118,14 +122,14 @@ const SearchList = () => {
                     <div className='col-8'>
                         <div className='searchlist__content'>
                             <label>
-                                {totalResults && (<span>{totalResults}</span>)}
+                                {jobs && (<span>{jobs?.length}</span>)}
                                 &nbsp;
                                 results for
                                 &nbsp;
                                 <span>UI Designer</span>
                             </label>
                             <ul className='list-result'>
-                                {results && results.map((item, index) => (
+                                {jobs && jobs.map((item, index) => (
                                     <li className='d-flex justify-content-center'>
                                         <JobItems job={item} category={categories[index]}></JobItems>
                                     </li>
